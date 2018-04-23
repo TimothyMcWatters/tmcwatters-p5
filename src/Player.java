@@ -30,7 +30,11 @@ public class Player {
 		Scanner inputStreamFromSocket = new Scanner(socketInput);
 		PrintWriter outputStreamToSocket = new PrintWriter(socketOutput);
 		Scanner inputStreamFromSystem = new Scanner(System.in);
+		String top = "";
+		String middle = "";
+		String bottom = "";
 
+		// Game Welcome and join
 		System.out.println("Welcome to Tim's Wonderful Wacky Tic-Tac-Toe game!");
 		System.out.print("To join a game, please enter your name: ");
 		String playerName = inputStreamFromSystem.next();
@@ -38,30 +42,44 @@ public class Player {
 		System.out.println("Joining " + playerName + "... ");
 		outputStreamToSocket.print(action);
 		outputStreamToSocket.flush();
+		
+		//Establishing Player 1 as first player
 		String responseFromSocket = inputStreamFromSocket.nextLine();
 		int playerNum = inputStreamFromSocket.nextInt();
 		System.out.println(responseFromSocket);
 		if (playerNum == 2)
 			System.out.println("Player 1's turn, please wait...");
-		inputStreamFromSocket.nextLine();
 		
-		String top = "";
-		String middle = "";
-		String bottom = "";
-		boolean illegalMove = false;
+		
+		System.out.print(inputStreamFromSocket.nextLine());
+		boolean illegalMove = false; // establishing a baseline for illegalMove
 		try {
 			while (true) {
 				if (!illegalMove) {
 					responseFromSocket = inputStreamFromSocket.nextLine();
 				}
+				//confirming illegalMove's status after input
 				if (!responseFromSocket.startsWith("Other player moved") && !responseFromSocket.startsWith("PLAYER")
 						&& !responseFromSocket.startsWith("Game ")) {
 					illegalMove = false;
-					System.out.print("Enter your move <player number> <row> <column>: ");
 					
+					//requesting a move 
+					System.out.println("To quit the game type <quit> otherwise,");
+					System.out.println("Enter your move, type <choose> <player number> <row> <column>: ");
+					String selection = inputStreamFromSystem.next();
+					if (selection.equalsIgnoreCase("quit")) {
+						String quitMessage = ("Player " + playerNum + " has quit the game.");
+						System.out.println(quitMessage);
+						action = "quit\n";
+						outputStreamToSocket.print(action);
+						outputStreamToSocket.flush();
+						break;
+					}
 					int number = inputStreamFromSystem.nextInt();
 					int row = inputStreamFromSystem.nextInt();
 					int column = inputStreamFromSystem.nextInt();
+					
+					//looping if wrong player is trying to play (or entering the wrong players number on accident)
 					while (number != playerNum) {
 						System.out.println("Illegal player number");
 						System.out.print("Please reenter <player number> <row> <column>: ");
@@ -107,6 +125,13 @@ public class Player {
 				} else if (responseFromSocket.startsWith("Illegal")) {
 					System.out.println(responseFromSocket);
 					illegalMove = true;
+				} else if (responseFromSocket.startsWith("quit")) {
+					String quitMessage = ("Player " + playerNum + " has quit the game.");
+					System.out.println(quitMessage);
+					action = "quit\n";
+					outputStreamToSocket.print(action);
+					outputStreamToSocket.flush();
+					break;
 				}
 			}
 		} finally {

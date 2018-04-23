@@ -47,8 +47,10 @@ public class PlayerService implements Runnable {
 		while (true) {
 			if (inputStream.hasNext()) {
 				String action = inputStream.next();
-				if (action.equals("quit")) {
-					System.out.println("Player " + game.getPlayer() + " has quit");
+				System.out.println(action);
+				if (action.startsWith("quit")) {
+					game.getOtherPlayer().outputStream.println("Player " + game.getPlayer() + " has quit");
+					game.getOtherPlayer().outputStream.flush();
 					return;
 				} else {
 					startTheGame(action);
@@ -59,13 +61,18 @@ public class PlayerService implements Runnable {
 		}
 	}
 	
+	private void quitTheGame(int player) {
+		System.out.println("Player " + player + " has quit");
+		System.exit(0);
+	}
+	
 	private void startTheGame(String action) {
 		if (action.startsWith("join")) {
 			String name = inputStream.next();
 			if (game.getPlayer() == 1) {
 				outputStream.println("Hello " + name + " you are player " + game.getPlayer());
 				outputStream.println(game.getPlayer());
-				outputStream.println("Player one go.");
+				outputStream.println("Player 1, you go first");
 				game.setPlayer(0);
 			} else {
 				game.setGameFull(true);
