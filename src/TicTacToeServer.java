@@ -8,7 +8,7 @@ import java.net.Socket;
  * 
  * COP 4027 Advanced Computer Programming
  * Project 5
- * File Name: Player.java
+ * File Name: TicTacToeServer.java
  * 
  * This Program: Is a networked tic-tac-toe game. This game involves a server that
  * waits for 2 players to join. As soon as the server receives a pair of players,
@@ -18,13 +18,14 @@ import java.net.Socket;
 
 public class TicTacToeServer {
 	
+	private static ServerSocket server;
+
 	public static void main(String[] args) throws IOException {
-		ServerSocket server = null;
+		Game game = new Game();
 		final int PORT = 8888;
 		try {
 			server = new ServerSocket(PORT);
 			System.out.println("Waiting for players to connect...");
-			Game game = new Game();
 			while (true) {
 				Socket s = server.accept();
 				System.out.println("Player connected...");
@@ -32,8 +33,6 @@ public class TicTacToeServer {
 				Thread t = new Thread(playerService);
 				t.start();
 			}
-		} catch (IOException exception) {
-			exception.printStackTrace();
 		} finally {
 			server.close();
 		}

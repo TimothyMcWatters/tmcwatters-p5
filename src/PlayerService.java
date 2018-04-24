@@ -49,8 +49,10 @@ public class PlayerService implements Runnable {
 				String action = inputStream.next();
 				System.out.println(action);
 				if (action.startsWith("quit")) {
-					game.getOtherPlayer().outputStream.println("Player " + game.getPlayer() + " has quit");
-					game.getOtherPlayer().outputStream.flush();
+					//game.getOtherPlayer().outputStream.println("quit");
+					//game.getOtherPlayer().outputStream.flush();
+					outputStream.println("quit");
+					outputStream.flush();
 					return;
 				} else {
 					startTheGame(action);
