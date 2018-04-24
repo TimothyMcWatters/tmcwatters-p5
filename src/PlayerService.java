@@ -22,6 +22,7 @@ public class PlayerService implements Runnable {
 	private Scanner inputStream;
 	private PrintWriter outputStream;
 	private Game game;
+	private int thisPlayerNumber; 
 
 	public PlayerService(Socket socket, Game game) {
 		this.socket = socket;
@@ -47,46 +48,43 @@ public class PlayerService implements Runnable {
 		while (true) {
 			if (inputStream.hasNext()) {
 				String action = inputStream.next();
-				System.out.println(action);
-				if (action.startsWith("quit")) {
-					//game.getOtherPlayer().outputStream.println("quit");
-					//game.getOtherPlayer().outputStream.flush();
-					outputStream.println("quit");
-					outputStream.flush();
-					return;
-				} else {
-					startTheGame(action);
-				}
+				startTheGame(action);
 			} else {
 				return;
 			}	
 		}
 	}
 	
-	private void quitTheGame(int player) {
-		System.out.println("Player " + player + " has quit");
-		System.exit(0);
-	}
-	
 	private void startTheGame(String action) {
-		if (action.startsWith("join")) {
-			String name = inputStream.next();
-			if (game.getPlayer() == 1) {
-				outputStream.println("Hello " + name + " you are player " + game.getPlayer());
-				outputStream.println(game.getPlayer());
-				outputStream.println("Player 1, you go first");
-				game.setPlayer(0);
-			} else {
-				game.setGameFull(true);
-				outputStream.println("Hello " + name + " you are player " + game.getPlayer() + ".  " + "Let the game begin!");
-				outputStream.println(game.getPlayer());
-				game.setPlayer(1);
-				game.setOtherPlayer(this);
-			}
-		} else if (action.equals("choose")) {
+		if (action.equalsIgnoreCase("join")) {
+			joinGame();
+		} else if (action.equalsIgnoreCase("choose")) {
 			makeMove();
+		} else if (action.equalsIgnoreCase("quit")) {
+			quitGame();
+		}		
+	}
+
+	/**
+	 * 
+	 */
+	public void joinGame() {
+		String name = inputStream.next();
+		if (game.getPlayer() == 1) {
+			setThisPlayerNumber(1);
+			outputStream.println("Hello " + name + " you are player " + game.getPlayer());
+			outputStream.println(game.getPlayer());
+			outputStream.println("Player 1, you go first");
+			game.setPlayer(0);
+		} else {
+			game.setGameFull(true);
+			setThisPlayerNumber(2);
+			outputStream.println("Hello " + name + " you are player " + game.getPlayer() + ".  " + "Let the game begin!");
+			outputStream.println(game.getPlayer());
+			game.setPlayer(1);
+			game.setOtherPlayer(this);
 		}
-		outputStream.flush();		
+		outputStream.flush();
 	}
 
 	private void makeMove() {
@@ -120,12 +118,39 @@ public class PlayerService implements Runnable {
 			
 		} else {
 			outputStream.println("We do not have two players yet");
-		} 	
+		} 
+		outputStream.flush();
 	}
-
+	
 	private void otherPlayerMoved(int playerNum, int row, int column) {
 		String otherPlayersMove = ("Player " + playerNum + " has chosen " + row + " " + column);
 		game.getOtherPlayer().outputStream.println("Other player moved" + " \n" + otherPlayersMove + "\n" + game.printGame());
 		game.getOtherPlayer().outputStream.println("Player " + game.getPlayer());
+	}
+	
+	private void quitGame() {
+		if (getThisPlayerNumber() == 1) {
+			outputStream.println("PLAYER 1 HAS QUIT");
+			game.getOtherPlayer().outputStream.println("PLAYER 1 HAS QUIT");
+		} else {
+			outputStream.println("PLAYER 2 HAS QUIT");
+			game.getOtherPlayer().outputStream.println("PLAYER 2 HAS QUIT");
+		}
+		game.getOtherPlayer().outputStream.flush();		
+		outputStream.flush();
+	}
+
+	/**
+	 * @return the thisPlayerNumber
+	 */
+	public int getThisPlayerNumber() {
+		return thisPlayerNumber;
+	}
+
+	/**
+	 * @param thisPlayerNumber the thisPlayerNumber to set
+	 */
+	public void setThisPlayerNumber(int thisPlayerNumber) {
+		this.thisPlayerNumber = thisPlayerNumber;
 	}
 }
