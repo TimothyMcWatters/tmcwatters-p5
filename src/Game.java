@@ -4,7 +4,7 @@
  * 
  * COP 4027 Advanced Computer Programming
  * Project 5
- * File Name: Player.java
+ * File Name: Game.java
  * 
  * This Program: Is a networked tic-tac-toe game. This game involves a server that
  * waits for 2 players to join. As soon as the server receives a pair of players,

@@ -9,7 +9,7 @@ import java.util.Scanner;
  * 
  * COP 4027 Advanced Computer Programming
  * Project 5
- * File Name: Player.java
+ * File Name: PlayerService.java
  * 
  * This Program: Is a networked tic-tac-toe game. This game involves a server that
  * waits for 2 players to join. As soon as the server receives a pair of players,
@@ -59,10 +59,10 @@ public class PlayerService implements Runnable {
 		if (action.equalsIgnoreCase("join")) {
 			joinGame();
 		} else if (action.equalsIgnoreCase("choose")) {
-			makeMove();
+			checkIfMoveIsLegal();
 		} else if (action.equalsIgnoreCase("quit")) {
 			quitGame();
-		}		
+		}	
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class PlayerService implements Runnable {
 		outputStream.flush();
 	}
 
-	private void makeMove() {
+	private void checkIfMoveIsLegal() {
 		int playerNum = inputStream.nextInt();
 		int row = inputStream.nextInt();
 		int column = inputStream.nextInt();
@@ -95,31 +95,56 @@ public class PlayerService implements Runnable {
 		if (game.isGameFull()) {
 			if (game.locationExists(row, column)) {
 				if (game.moveIsOk(row, column)) {
-					game.makeMove(playerNum, row, column);
-					outputStream.println("Player " + playerNum + " has chosen " + row + " " + column);
-					outputStream.println(game.printGame());
-					game.getOtherPlayer().otherPlayerMoved(playerNum, row, column);
-					if (game.gameOverWithWinner()) {
-						outputStream.println("PLAYER " + playerNum + " WINS!!!");
-						game.getOtherPlayer().outputStream.println("PLAYER " + playerNum + " WINS!!!");
-					}
-					if (game.gameOverWithDraw()) {
-						outputStream.println("Game over, it is a draw!");
-						game.getOtherPlayer().outputStream.println("Game over, it is a draw!");
-					}
-					game.getOtherPlayer().outputStream.flush();
-					game.setOtherPlayer(this);
+					processPlayerMove(playerNum, row, column);
 				} else {
 					outputStream.println("Position " + row + " " + column + " is taken, try again");
+					outputStream.flush();
 				}
 			} else {
 				outputStream.println("Illegal Board Position");
+				outputStream.flush();
 			}
-			
 		} else {
 			outputStream.println("We do not have two players yet");
+			outputStream.flush();
 		} 
+		
+	}
+
+	/**
+	 * @param playerNum
+	 * @param row
+	 * @param column
+	 */
+	private void processPlayerMove(int playerNum, int row, int column) {
+		game.makeMove(playerNum, row, column);
+		outputStream.println("Player " + playerNum + " has chosen " + row + " " + column);
+		outputStream.println(game.printGame());
+		game.getOtherPlayer().otherPlayerMoved(playerNum, row, column);
+		
+		if (game.gameOverWithWinner()) {
+			outputStream.println("PLAYER " + getThisPlayerNumber() + " WINS!!!");
+			game.getOtherPlayer().outputStream.println("PLAYER " + getThisPlayerNumber() + " WINS!!!");
+			
+			game.getOtherPlayer().outputStream.flush();		
+			outputStream.flush();
+			
+			
+			
+			//outputStream.println("PLAYER " + playerNum + " WINS!!!");
+			//game.getOtherPlayer().outputStream.println("PLAYER " + playerNum + " WINS!!!");
+		}
+		
+		if (game.gameOverWithDraw()) {
+			outputStream.println("Game over, it is a draw!");
+			game.getOtherPlayer().outputStream.println("Game over, it is a draw!");
+			
+			game.getOtherPlayer().outputStream.flush();		
+			outputStream.flush();
+		}
 		outputStream.flush();
+		game.getOtherPlayer().outputStream.flush();
+		game.setOtherPlayer(this);
 	}
 	
 	private void otherPlayerMoved(int playerNum, int row, int column) {
@@ -129,13 +154,9 @@ public class PlayerService implements Runnable {
 	}
 	
 	private void quitGame() {
-		if (getThisPlayerNumber() == 1) {
-			outputStream.println("PLAYER 1 HAS QUIT");
-			game.getOtherPlayer().outputStream.println("PLAYER 1 HAS QUIT");
-		} else {
-			outputStream.println("PLAYER 2 HAS QUIT");
-			game.getOtherPlayer().outputStream.println("PLAYER 2 HAS QUIT");
-		}
+		outputStream.println("PLAYER " + getThisPlayerNumber() + " HAS QUIT");
+		game.getOtherPlayer().outputStream.println("PLAYER " + getThisPlayerNumber() + " HAS QUIT");
+		
 		game.getOtherPlayer().outputStream.flush();		
 		outputStream.flush();
 	}
